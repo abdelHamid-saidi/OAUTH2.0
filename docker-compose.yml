@@ -1,0 +1,34 @@
+# OAuth 2.0 — connexion Google avec Passport.js
+# Lancer : docker compose up --build
+# Ouvrir : http://localhost:8080
+# Le conteneur Nginx écoute sur le port 80.
+# Le port hôte est 8080 : le port 80 est déjà utilisé par WAMP sur cette machine.
+#
+# URI de redirection à autoriser dans Google Cloud Console :
+#   http://localhost:4000/api/auth/google/callback
+
+services:
+  server:
+    build: ./server
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    environment:
+      PORT: "4000"
+      NODE_ENV: production
+      CLIENT_URL: "http://localhost:8080"
+      GOOGLE_CALLBACK_URL: "http://localhost:4000/api/auth/google/callback"
+      DATA_DIR: "/app/data"
+    volumes:
+      - ./server/data:/app/data
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: http://localhost:4000
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
